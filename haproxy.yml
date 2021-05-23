@@ -1,0 +1,52 @@
+- hosts: web
+  tasks:
+  - name: configuring httpd
+    package:
+      name: httpd
+      state: present
+
+
+  - name: installing php
+    package:
+      name: php
+      state: present
+
+
+  - name: copying web page
+    template:
+      dest: /var/www/html/index.html
+      src: /root/ws2/index.php
+
+
+- hosts: loadbalancer
+  tasks:
+  - name: Installing haproxy
+    package:
+      name: haproxy
+      state: present
+    register: haproxyinstalled
+
+
+  - template:
+      dest: /etc/haproxy/haproxy.cfg
+      src:  /root/ws2/haproxy.cfg
+    when: haproxyinstalled.rc == o
+    notify: haproxy restart
+
+
+  - name: starting haproxy server
+    service:
+      name: haproxy
+      state: started
+
+
+  - name: stoping firewall
+    firewalld:
+      state: disabled
+
+
+  handlers:
+   - name: haproxy restart
+     service:
+       name: haproxy
+       state: restarted
