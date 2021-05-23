@@ -16,6 +16,11 @@
     template:
       dest: /var/www/html/index.html
       src: /root/ws2/index.php
+  
+  - name: starting httpd service
+    service:
+      name: httpd
+      state: started
 
 
 - hosts: loadbalancer
